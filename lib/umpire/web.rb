@@ -189,10 +189,16 @@ module Umpire
     end
 
     error do
+      e = env['sinatra.error']
+
       Rollbar.error(sinatra_err.message, class: sinatra_err.class, at: :internal_error, request_id: request_id)
       log(at: "internal_error", "class" => e.class, message: e.message)
       status 500
-      JSON.dump({"error" => "internal server error", "request_id" => request_id}) + "\n"
+      JSON.dump({
+        "error" => "internal server error",
+        "request_id" => request_id,
+        "message" => e.message
+      }) + "\n"
     end
 
     def self.start
